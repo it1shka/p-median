@@ -1,26 +1,55 @@
 import styled, { keyframes } from "styled-components";
-import { Entity } from "../store/workingSpace.slice";
+import { appendEntity, Entity, removeEntity, toggleMenuAt } from "../store/workingSpace.slice";
+import { memo, useCallback } from "react";
+import { useAppDispatch } from "../store/hooks";
 
 const EntityComponent = ({ id, kind, x, y }: Entity) => {
+  const dispatch = useAppDispatch();
+
+  const handleClick = useCallback((event: React.MouseEvent) => {
+    event.stopPropagation();
+    dispatch(toggleMenuAt(id));
+  }, [id, dispatch]);
+
+  const handleDoubleClick = useCallback(() => {
+    dispatch(removeEntity(id))
+  }, [id])
+
+  const handleMouseMove = useCallback(
+    ({ clientX, clientY }: MouseEvent) => {
+      dispatch(appendEntity({
+        id,
+        kind,
+        x: clientX,
+        y: clientY,
+      }));
+    },
+    [dispatch],
+  );
+
+  const handleDragStart = useCallback(() => {
+    window.addEventListener("mousemove", handleMouseMove);
+  }, []);
+
+  const handleDragEnd = useCallback(() => {
+    window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
   return (
-    <EntityContainer $x={x} $y={y}>
+    <EntityContainer
+      onClick={handleClick}
+      onDoubleClick={handleDoubleClick}
+      onMouseDown={handleDragStart}
+      onMouseUp={handleDragEnd}
+      $x={x}
+      $y={y}
+    >
       {kind === "consumer" ? <ConsumerElement /> : <ProducerElement />}
     </EntityContainer>
   );
 };
 
-export default EntityComponent;
-
-const entityAnimation = keyframes`
-  0% {
-    opacity: 0;
-    scale: 0;
-  }
-  100% {
-    opacity: 1;
-    scale: 1;
-  }
-`;
+export default memo(EntityComponent);
 
 const ProducerElement = styled.div`
   width: 50px;
@@ -32,7 +61,6 @@ const ProducerElement = styled.div`
     transform: scale(1.15);
     background-color: #9fff73;
   }
-  animation: ${entityAnimation} 0.5s ease-in-out;
 `;
 
 const ConsumerElement = styled.div`
@@ -46,15 +74,17 @@ const ConsumerElement = styled.div`
     transform: scale(1.15);
     background-color: #ff987a;
   }
-  animation: ${entityAnimation} 0.5s ease-in-out;
 `;
 
-const EntityContainer = styled.div<{
+const EntityContainer = styled.div.attrs<{
   $x: number;
   $y: number;
-}>`
+}>(({ $x, $y }) => ({
+  style: {
+    top: $y,
+    left: $x,
+  },
+}))`
   position: absolute;
-  top: ${({ $y }) => $y}px;
-  left: ${({ $x }) => $x}px;
   transform: translate(-50%, -50%);
 `;
