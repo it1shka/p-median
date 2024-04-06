@@ -2,6 +2,7 @@ import React, { useCallback } from "react";
 import styled, { keyframes } from "styled-components";
 import { appendEntity, Entity, setPopup } from "../store/workingSpace.slice";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
+import EntityComponent from "./Entity";
 
 const WorkingSpace = () => {
   const popup = useAppSelector((state) => state.workingSpace.popup);
@@ -16,9 +17,17 @@ const WorkingSpace = () => {
     ));
   }, [popup, dispatch]);
 
+  const entities = useAppSelector(state => state.workingSpace.entities)
+
   return (
     <SpaceContainer onClick={handleClick}>
       {popup && <Popup />}
+      { entities.map(entity => (
+        <EntityComponent 
+          key={entity.id}
+          {...entity}
+        />
+      )) }
     </SpaceContainer>
   );
 };
@@ -134,6 +143,7 @@ const PopupContainer = styled.div<{
   $y: number;
 }>`
   position: absolute;
+  z-index: 50;
   top: ${({ $y }) => $y}px;
   left: ${({ $x }) => $x}px;
   background-color: white;
