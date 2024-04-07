@@ -66,6 +66,7 @@ const workingSpaceSlice = createSlice({
     removeEntity: (state, { payload }: RemoveEntityAction) => ({
       ...state,
       entities: state.entities.filter(({ id }) => payload !== id),
+      connections: state.connections.filter(conn => !conn.includes(payload)),
     }),
     swapEntity: (state, { payload }: SwapEntityAction) => {
       const target = state
