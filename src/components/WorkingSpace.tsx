@@ -1,14 +1,26 @@
-import React, { useCallback } from "react";
+import React, { memo, useCallback } from "react";
 import styled, { keyframes } from "styled-components";
-import { appendEntity, Entity, setPopup } from "../store/workingSpace.slice";
+import {
+  appendEntity,
+  Entity,
+  setConnectionTarget,
+  setPopup,
+} from "../store/workingSpace.slice";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import EntityComponent from "./Entity";
+import Menu from "./Menu";
+import ConnectionTarget from "./ConnectionTarget";
 
 const WorkingSpace = () => {
   const popup = useAppSelector((state) => state.workingSpace.popup);
+  const menuAt = useAppSelector((state) => state.workingSpace.menuAt);
+  const connectionTarget = useAppSelector((state) =>
+    state.workingSpace.connectionTarget
+  );
 
   const dispatch = useAppDispatch();
-  const handleClick = useCallback((event: React.MouseEvent) => {
+
+  const togglePopup = useCallback((event: React.MouseEvent) => {
     dispatch(setPopup(
       popup ? null : {
         x: event.clientX,
@@ -17,24 +29,42 @@ const WorkingSpace = () => {
     ));
   }, [popup, dispatch]);
 
-  const entities = useAppSelector(state => state.workingSpace.entities)
+  const cancelConnection = useCallback(() => {
+    dispatch(setConnectionTarget(null));
+  }, [dispatch]);
 
-  return (
-    <SpaceContainer onClick={handleClick}>
-      {popup && <Popup />}
-      { entities.map(entity => (
-        <EntityComponent 
-          key={entity.id}
-          {...entity}
-        />
-      )) }
-    </SpaceContainer>
-  );
+  const entities = useAppSelector((state) => state.workingSpace.entities);
+
+  return connectionTarget
+    ? (
+      <SpaceContainer onClick={cancelConnection}>
+        {entities
+          .filter(({ kind }) => kind !== connectionTarget.kind)
+          .map((entity) => (
+            <ConnectionTarget
+              key={entity.id}
+              {...entity}
+            />
+          ))}
+      </SpaceContainer>
+    )
+    : (
+      <SpaceContainer onClick={togglePopup}>
+        {popup && <Popup />}
+        {menuAt && <Menu />}
+        {entities.map((entity) => (
+          <EntityComponent
+            key={entity.id}
+            {...entity}
+          />
+        ))}
+      </SpaceContainer>
+    );
 };
 
 export default WorkingSpace;
 
-const Popup = () => {
+const Popup = memo(() => {
   const { x, y } = useAppSelector((state) => {
     return state.workingSpace.popup!;
   });
@@ -71,7 +101,7 @@ const Popup = () => {
       </PopupContainer>
     </>
   );
-};
+});
 
 const pointerAnimation = keyframes`
   0%, 100% {

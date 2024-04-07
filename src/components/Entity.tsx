@@ -1,5 +1,9 @@
-import styled, { keyframes } from "styled-components";
-import { appendEntity, Entity, removeEntity, toggleMenuAt } from "../store/workingSpace.slice";
+import styled from "styled-components";
+import {
+  appendEntity,
+  Entity,
+  toggleMenuAt,
+} from "../store/workingSpace.slice";
 import { memo, useCallback } from "react";
 import { useAppDispatch } from "../store/hooks";
 
@@ -8,12 +12,12 @@ const EntityComponent = ({ id, kind, x, y }: Entity) => {
 
   const handleClick = useCallback((event: React.MouseEvent) => {
     event.stopPropagation();
+  }, []);
+
+  const handleDoubleClick = useCallback((event: React.MouseEvent) => {
+    event.stopPropagation();
     dispatch(toggleMenuAt(id));
   }, [id, dispatch]);
-
-  const handleDoubleClick = useCallback(() => {
-    dispatch(removeEntity(id))
-  }, [id])
 
   const handleMouseMove = useCallback(
     ({ clientX, clientY }: MouseEvent) => {
@@ -24,16 +28,16 @@ const EntityComponent = ({ id, kind, x, y }: Entity) => {
         y: clientY,
       }));
     },
-    [dispatch],
+    [id, kind, dispatch],
   );
 
   const handleDragStart = useCallback(() => {
     window.addEventListener("mousemove", handleMouseMove);
-  }, []);
+  }, [handleMouseMove]);
 
   const handleDragEnd = useCallback(() => {
     window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
+  }, [handleMouseMove]);
 
   return (
     <EntityContainer
@@ -51,7 +55,7 @@ const EntityComponent = ({ id, kind, x, y }: Entity) => {
 
 export default memo(EntityComponent);
 
-const ProducerElement = styled.div`
+export const ProducerElement = styled.div`
   width: 50px;
   height: 50px;
   background-color: #c9ffb0;
@@ -63,9 +67,9 @@ const ProducerElement = styled.div`
   }
 `;
 
-const ConsumerElement = styled.div`
-  width: 50px;
-  height: 50px;
+export const ConsumerElement = styled.div`
+  width: 40px;
+  height: 40px;
   background-color: #ffb7a3;
   border: 5px solid black;
   border-radius: 100%;
@@ -76,7 +80,7 @@ const ConsumerElement = styled.div`
   }
 `;
 
-const EntityContainer = styled.div.attrs<{
+export const EntityContainer = styled.div.attrs<{
   $x: number;
   $y: number;
 }>(({ $x, $y }) => ({

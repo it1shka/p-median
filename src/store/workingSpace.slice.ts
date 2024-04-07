@@ -10,10 +10,14 @@ export type Entity = {
   kind: "consumer" | "producer";
 } & Position;
 
+export type Connection = [Entity["id"], Entity["id"]];
+
 export type WorkingSpaceState = {
   popup: Position | null;
   menuAt: Entity["id"] | null;
   entities: Entity[];
+  connectionTarget: Entity | null;
+  connections: Connection[];
 };
 
 type SetPopupAction = PayloadAction<WorkingSpaceState["popup"]>;
@@ -21,11 +25,20 @@ type AppendEntityAction = PayloadAction<Entity>;
 type RemoveEntityAction = PayloadAction<Entity["id"]>;
 type SetMenuAtAction = PayloadAction<WorkingSpaceState["menuAt"]>;
 type ToggleMenuAtAction = PayloadAction<Entity["id"]>;
+type SwapEntityAction = PayloadAction<Entity["id"]>;
+type SetConnectionTargetAction = PayloadAction<
+  WorkingSpaceState["connectionTarget"]
+>;
+type AddConnectionAction = PayloadAction<Connection>;
+type FinishConnectionAction = PayloadAction<Entity["id"]>;
+type SetConnectionsAction = PayloadAction<Connection[]>;
 
 const initialState: WorkingSpaceState = {
   popup: null,
   menuAt: null,
   entities: [],
+  connectionTarget: null,
+  connections: [],
 };
 
 const workingSpaceSlice = createSlice({
@@ -54,6 +67,31 @@ const workingSpaceSlice = createSlice({
       ...state,
       entities: state.entities.filter(({ id }) => payload !== id),
     }),
+    swapEntity: (state, { payload }: SwapEntityAction) => {
+      const target = state
+        .entities
+        .filter(({ id }) => id === payload)
+        .pop();
+      if (!target) return;
+      target.kind = target.kind === "consumer" ? "producer" : "consumer";
+      state.connections = state.connections.filter((conn) =>
+        !conn.includes(payload)
+      );
+    },
+    setConnectionTarget: (state, { payload }: SetConnectionTargetAction) => {
+      state.connectionTarget = payload;
+    },
+    addConnection: (state, { payload }: AddConnectionAction) => {
+      state.connections.push(payload);
+    },
+    finishConnection: (state, { payload }: FinishConnectionAction) => {
+      if (!state.connectionTarget) return;
+      state.connections.push([state.connectionTarget.id, payload]);
+      state.connectionTarget = null;
+    },
+    setConnections: (state, { payload }: SetConnectionsAction) => {
+      state.connections = payload;
+    },
   },
 });
 
@@ -64,4 +102,9 @@ export const {
   toggleMenuAt,
   appendEntity,
   removeEntity,
+  swapEntity,
+  setConnectionTarget,
+  addConnection,
+  finishConnection,
+  setConnections,
 } = workingSpaceSlice.actions;
