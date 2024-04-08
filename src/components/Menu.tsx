@@ -37,6 +37,11 @@ const Menu = () => {
     dispatch(disconnectEntity(menuAt));
   }, [menuAt, dispatch]);
 
+  const handleReconnect = useCallback(() => {
+    handleDisconnect();
+    handleConnectTo();
+  }, [handleDisconnect, handleConnectTo]);
+
   const interceptClick = useCallback((event: React.MouseEvent) => {
     event.stopPropagation();
   }, []);
@@ -60,6 +65,9 @@ const Menu = () => {
       </KindStatus>
       {canBeConnected && (
         <Button onClick={handleConnectTo}>Connect to...</Button>
+      )}
+      {isConnected && target.kind === "consumer" && (
+        <Button onClick={handleReconnect}>Reconnect</Button>
       )}
       {isConnected && <Button onClick={handleDisconnect}>Disconnect</Button>}
       <Button onClick={handleSwap}>Swap</Button>
