@@ -39,7 +39,6 @@ const WorkingSpace = () => {
     ? (
       <SpaceContainer onClick={cancelConnection}>
         {entities
-          .filter(({ kind }) => kind !== connectionTarget.kind)
           .map((entity) => (
             <ConnectionTarget
               key={entity.id}

@@ -1,12 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import { useAppSelector } from "../store/hooks";
 import { Entity } from "../store/workingSpace.slice";
 
 const ConnectionDrawer = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  type Size = readonly [number, number];
-  const [size, setSize] = useState<Size>([0, 0]);
+  type Pair = readonly [number, number];
+  const [size, setSize] = useState<Pair>([0, 0]);
 
   useEffect(() => {
     const resizer = () => {
@@ -33,15 +33,28 @@ const ConnectionDrawer = () => {
     );
   }, [entities, connections]);
 
+  const [mousePosition, setMousePosition] = useState<Pair | null>(null);
+  const handleMouseMove = useCallback(({ clientX, clientY }: MouseEvent) => {
+    setMousePosition([clientX, clientY]);
+  }, []);
   const connectionTarget = useAppSelector((state) =>
     state.workingSpace.connectionTarget
   );
+  useEffect(() => {
+    if (!connectionTarget) {
+      setMousePosition(null);
+      return;
+    }
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+    };
+  }, [connectionTarget, handleMouseMove]);
 
   useEffect(() => {
     const ctx = canvasRef.current?.getContext("2d");
     if (!ctx) return;
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    if (connectionTarget) return;
     ctx.fillStyle = "black";
     ctx.lineWidth = 4;
     for (const [x1, y1, x2, y2] of lines) {
@@ -50,7 +63,15 @@ const ConnectionDrawer = () => {
       ctx.lineTo(x2, y2);
       ctx.stroke();
     }
-  }, [lines, size, connectionTarget]);
+    if (mousePosition && connectionTarget) {
+      ctx.beginPath();
+      const { x, y } = connectionTarget;
+      const [ endX, endY ] = mousePosition;
+      ctx.moveTo(x, y);
+      ctx.lineTo(endX, endY);
+      ctx.stroke();
+    }
+  }, [lines, size, mousePosition, connectionTarget]);
 
   const [width, height] = size;
   return (

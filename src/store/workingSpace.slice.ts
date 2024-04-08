@@ -32,6 +32,7 @@ type SetConnectionTargetAction = PayloadAction<
 type AddConnectionAction = PayloadAction<Connection>;
 type FinishConnectionAction = PayloadAction<Entity["id"]>;
 type SetConnectionsAction = PayloadAction<Connection[]>;
+type DisconnectEntityAction = PayloadAction<Entity["id"]>;
 
 const initialState: WorkingSpaceState = {
   popup: null,
@@ -93,6 +94,10 @@ const workingSpaceSlice = createSlice({
     setConnections: (state, { payload }: SetConnectionsAction) => {
       state.connections = payload;
     },
+    disconnectEntity: (state, { payload }: DisconnectEntityAction) => ({
+      ...state,
+      connections: state.connections.filter(conn => !conn.includes(payload)),
+    }),
   },
 });
 
@@ -108,4 +113,5 @@ export const {
   addConnection,
   finishConnection,
   setConnections,
+  disconnectEntity,
 } = workingSpaceSlice.actions;

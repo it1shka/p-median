@@ -2,6 +2,7 @@ import styled, { keyframes } from "styled-components";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { memo, useCallback, useMemo } from "react";
 import {
+  disconnectEntity,
   Entity,
   removeEntity,
   setConnectionTarget,
@@ -32,9 +33,21 @@ const Menu = () => {
     dispatch(setConnectionTarget(target));
   }, [target, dispatch]);
 
+  const handleDisconnect = useCallback(() => {
+    dispatch(disconnectEntity(menuAt));
+  }, [menuAt, dispatch]);
+
   const interceptClick = useCallback((event: React.MouseEvent) => {
     event.stopPropagation();
   }, []);
+
+  const connections = useAppSelector((state) => state.workingSpace.connections);
+  const isConnected = useMemo(() => {
+    return connections.some((conn) => {
+      return conn.includes(menuAt);
+    });
+  }, [connections, menuAt]);
+  const canBeConnected = target.kind !== "consumer" || !isConnected;
 
   return (
     <MenuContainer
@@ -45,7 +58,10 @@ const Menu = () => {
       <KindStatus $kind={target.kind}>
         {target.kind.replace(/^./, (c) => c.toUpperCase())}
       </KindStatus>
-      <Button onClick={handleConnectTo}>Connect to...</Button>
+      {canBeConnected && (
+        <Button onClick={handleConnectTo}>Connect to...</Button>
+      )}
+      {isConnected && <Button onClick={handleDisconnect}>Disconnect</Button>}
       <Button onClick={handleSwap}>Swap</Button>
       <Button onClick={handleDelete}>Delete</Button>
     </MenuContainer>
