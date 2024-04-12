@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from "../store/hooks";
 import {
   setGenSampleSize,
   setGenType,
+  setPValue,
   toggleSidePanel,
 } from "../store/sidePanel.slice";
 import {
@@ -56,11 +57,19 @@ const SidePanel = () => {
     dispatch(removeAllEntities());
   }, [dispatch]);
 
+  const pValue = useAppSelector(state => state.sidePanel.pValue)
+  const handleChangePValue = useCallback((event: Change) => {
+    const value = Number(event.target.value);
+    dispatch(setPValue(value));
+  }, [dispatch]);
+
   return createPortal(
     (
       <SidePanelContainer $open={isOpen}>
         <OpenButton onClick={handleToggle}>Menu</OpenButton>
+        {/* Generator */}
         <GeneratorContainer>
+          <Title>Random Generator</Title>
           <Input
             value={genSampleSize}
             onChange={handleSetGenSampleSize}
@@ -88,6 +97,22 @@ const SidePanel = () => {
             Delete all entities
           </GenerateButton>
         </GeneratorContainer>
+
+        {/*Algorithms*/}
+        <GeneratorContainer>
+          <Title>Algorithms</Title>
+          <Input
+            type="number"
+            placeholder="p parameter"
+            min={1}
+            step={1}
+            value={pValue}
+            onChange={handleChangePValue}
+          />
+          <GenerateButton>
+            Start Algorithm
+          </GenerateButton>
+        </GeneratorContainer>
       </SidePanelContainer>
     ),
     document.body,
@@ -96,9 +121,14 @@ const SidePanel = () => {
 
 export default memo(SidePanel);
 
+const Title = styled.h1`
+  color: white;
+`;
+
 const GenerateButton = styled.button`
   border: none;
   padding: 0.5em 1em;
+  cursor: pointer;
 `;
 
 const TypeButton = styled.button<{
@@ -125,6 +155,7 @@ const TypeButtons = styled.div`
 const Input = styled.input`
   outline: none;
   padding: 0.5em 1em;
+  width: 100%;
 `;
 
 const GeneratorContainer = styled.div`
@@ -169,4 +200,7 @@ const SidePanelContainer = styled.div<{
   $open && css`
     transform: translateX(0);
   `}
+  & > * + * {
+    margin-top: 4em;
+  }
 `;
