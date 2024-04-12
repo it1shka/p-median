@@ -22,6 +22,7 @@ export type WorkingSpaceState = {
 
 type SetPopupAction = PayloadAction<WorkingSpaceState["popup"]>;
 type AppendEntityAction = PayloadAction<Entity>;
+type AppendEntitiesAction = PayloadAction<Entity[]>;
 type RemoveEntityAction = PayloadAction<Entity["id"]>;
 type SetMenuAtAction = PayloadAction<WorkingSpaceState["menuAt"]>;
 type ToggleMenuAtAction = PayloadAction<Entity["id"]>;
@@ -64,10 +65,25 @@ const workingSpaceSlice = createSlice({
         entities: [...filteredEntities, payload],
       };
     },
+    appendEntities: (state, { payload }: AppendEntitiesAction) => {
+      const newIds = new Set(payload.map(({ id }) => id));
+      const filteredEntities = state.entities.filter(({ id }) => {
+        return !newIds.has(id);
+      });
+      return {
+        ...state,
+        entities: [...filteredEntities, ...payload],
+      };
+    },
     removeEntity: (state, { payload }: RemoveEntityAction) => ({
       ...state,
       entities: state.entities.filter(({ id }) => payload !== id),
-      connections: state.connections.filter(conn => !conn.includes(payload)),
+      connections: state.connections.filter((conn) => !conn.includes(payload)),
+    }),
+    removeAllEntities: (state) => ({
+      ...state,
+      entities: [],
+      connections: [],
     }),
     swapEntity: (state, { payload }: SwapEntityAction) => {
       const target = state
@@ -96,7 +112,7 @@ const workingSpaceSlice = createSlice({
     },
     disconnectEntity: (state, { payload }: DisconnectEntityAction) => ({
       ...state,
-      connections: state.connections.filter(conn => !conn.includes(payload)),
+      connections: state.connections.filter((conn) => !conn.includes(payload)),
     }),
   },
 });
@@ -107,7 +123,9 @@ export const {
   setMenuAt,
   toggleMenuAt,
   appendEntity,
+  appendEntities,
   removeEntity,
+  removeAllEntities,
   swapEntity,
   setConnectionTarget,
   addConnection,

@@ -1,9 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
 import workingSpace from "./workingSpace.slice";
+import sidePanel from "./sidePanel.slice";
 
 const store = configureStore({
   reducer: {
     workingSpace,
+    sidePanel,
   },
 });
 

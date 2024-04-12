@@ -1,5 +1,7 @@
 import Background from "./components/Background";
 import ConnectionDrawer from "./components/ConnectionDrawer";
+import Metrics from "./components/Metrics";
+import SidePanel from "./components/SidePanel";
 import WorkingSpace from "./components/WorkingSpace";
 
 const App = () => {
@@ -8,6 +10,8 @@ const App = () => {
       <Background />
       <ConnectionDrawer />
       <WorkingSpace />
+      <Metrics />
+      <SidePanel />
     </>
   );
 };

@@ -41,6 +41,7 @@ const EntityComponent = ({ id, kind, x, y }: Entity) => {
 
   return (
     <EntityContainer
+      draggable={false}
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
       onMouseDown={handleDragStart}
