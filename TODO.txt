@@ -1,2 +1,2 @@
-Add "Disconnect" button to Menu.tsx
-Fix repetitive connections (hide elements if they are already connected)
+Implement algorithm player
+Implement algorithm clearer

@@ -29,7 +29,7 @@ const algorithms = [
   ...greedy,
 ].map((algorithm, index) => Object.freeze({
   ...algorithm,
-  algorithmID: index,
+  algorithmID: index + 1,
 }));
 
 export type AlgorithmID = 

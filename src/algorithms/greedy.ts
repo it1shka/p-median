@@ -41,30 +41,6 @@ const greedyAlgorithms: Array<AlgorithmData> = [
       // TODO: 
     },
   },
-  {
-    name: "Test algorithm",
-    algorithmFunction: (ctx) => {
-
-    }
-  },
-  {
-    name: "Test algorithm",
-    algorithmFunction: (ctx) => {
-
-    }
-  },
-  {
-    name: "Test algorithm",
-    algorithmFunction: (ctx) => {
-
-    }
-  },
-  {
-    name: "Test algorithm",
-    algorithmFunction: (ctx) => {
-
-    }
-  },
 ];
 
 export default greedyAlgorithms;
