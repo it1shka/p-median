@@ -61,7 +61,7 @@ const WorkingSpace = () => {
     );
 };
 
-export default WorkingSpace;
+export default memo(WorkingSpace);
 
 const Popup = memo(() => {
   const { x, y } = useAppSelector((state) => {

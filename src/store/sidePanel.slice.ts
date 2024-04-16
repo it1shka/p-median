@@ -1,11 +1,15 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Entity } from "./workingSpace.slice";
+import { AlgorithmID } from "../algorithms";
 
 type SidePanelState = {
   isOpen: boolean;
   genSampleSize: number;
   genType: Entity["kind"];
-  pValue: number
+  pValue: number;
+  chosenAlgorithm: AlgorithmID | null;
+  algorithmChoose: boolean;
+  algorithmPlay: boolean;
 };
 
 const initialState: SidePanelState = {
@@ -13,11 +17,16 @@ const initialState: SidePanelState = {
   genSampleSize: 10,
   genType: "consumer",
   pValue: 1,
+  chosenAlgorithm: null,
+  algorithmChoose: false,
+  algorithmPlay: false,
 };
 
 type SetGenTypeAction = PayloadAction<Entity["kind"]>;
 type SetGenSampleSizeAction = PayloadAction<number>;
 type SetPValueAction = PayloadAction<number>;
+type SetAlgorithmAction = PayloadAction<AlgorithmID>;
+type SetAlgorithmChooseAction = PayloadAction<boolean>;
 
 const sidePanelSlice = createSlice({
   name: "sidePanel",
@@ -35,7 +44,16 @@ const sidePanelSlice = createSlice({
     },
     setPValue: (state, { payload }: SetPValueAction) => {
       state.pValue = payload;
-    }
+    },
+    setAlgorithm: (state, { payload }: SetAlgorithmAction) => {
+      state.chosenAlgorithm = payload;
+    },
+    setAlgorithmChoose: (state, { payload }: SetAlgorithmChooseAction) => {
+      state.algorithmChoose = payload;
+    },
+    toggleAlgorithmPlay: (state) => {
+      state.algorithmPlay = !state.algorithmPlay;
+    },
   },
 });
 
@@ -45,4 +63,7 @@ export const {
   setGenSampleSize,
   setGenType,
   setPValue,
+  setAlgorithm,
+  setAlgorithmChoose,
+  toggleAlgorithmPlay,
 } = sidePanelSlice.actions;

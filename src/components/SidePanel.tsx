@@ -1,11 +1,13 @@
-import React, { memo, useCallback } from "react";
+import React, { memo, useCallback, useMemo } from "react";
 import { createPortal } from "react-dom";
 import styled, { css } from "styled-components";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import {
+  setAlgorithmChoose,
   setGenSampleSize,
   setGenType,
   setPValue,
+  toggleAlgorithmPlay,
   toggleSidePanel,
 } from "../store/sidePanel.slice";
 import {
@@ -13,6 +15,7 @@ import {
   Entity,
   removeAllEntities,
 } from "../store/workingSpace.slice";
+import algorithms from "../algorithms";
 
 const SidePanel = () => {
   const dispatch = useAppDispatch();
@@ -63,13 +66,35 @@ const SidePanel = () => {
     dispatch(setPValue(value));
   }, [dispatch]);
 
+  const chosenAlgorithm = useAppSelector(state => state.sidePanel.chosenAlgorithm);
+  const chosenAlgorithmName = useMemo(() => {
+    if (chosenAlgorithm === null) {
+      return "Select algorithm";
+    }
+    const target = algorithms.find(({ algorithmID }) => algorithmID === chosenAlgorithm)
+    if (!target) {
+      return "Unknown algorithm";
+    }
+    return target.name;
+  }, [chosenAlgorithm]);
+
+  const handleAlgorithmChoose = useCallback(() => {
+    dispatch(setAlgorithmChoose(true));
+  }, [dispatch]);
+
+  const algorithmPlay = useAppSelector(state => state.sidePanel.algorithmPlay);
+  const handleToggleAlgorithmPlay = useCallback(() => {
+    dispatch(toggleAlgorithmPlay());
+  }, [dispatch]);
+
   return createPortal(
     (
       <SidePanelContainer $open={isOpen}>
         <OpenButton onClick={handleToggle}>Menu</OpenButton>
         {/* Generator */}
         <GeneratorContainer>
-          <Title>Random Generator</Title>
+          <Title>Generator</Title>
+          <Label>Sample size: </Label>
           <Input
             value={genSampleSize}
             onChange={handleSetGenSampleSize}
@@ -100,7 +125,8 @@ const SidePanel = () => {
 
         {/*Algorithms*/}
         <GeneratorContainer>
-          <Title>Algorithms</Title>
+          <Title>Algorithm</Title>
+          <Label>P value: </Label>
           <Input
             type="number"
             placeholder="p parameter"
@@ -109,8 +135,14 @@ const SidePanel = () => {
             value={pValue}
             onChange={handleChangePValue}
           />
-          <GenerateButton>
-            Start Algorithm
+          <GenerateButton onClick={handleAlgorithmChoose}>
+            {chosenAlgorithmName}
+          </GenerateButton>
+          <GenerateButton 
+            onClick={handleToggleAlgorithmPlay}
+            disabled={!chosenAlgorithm}
+          >
+            {algorithmPlay ? "Stop Algorithm" : "Start Algorithm"}
           </GenerateButton>
         </GeneratorContainer>
       </SidePanelContainer>
@@ -120,6 +152,10 @@ const SidePanel = () => {
 };
 
 export default memo(SidePanel);
+
+const Label = styled.p`
+  color: white;
+`;
 
 const Title = styled.h1`
   color: white;

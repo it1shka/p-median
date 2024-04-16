@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { memo, useEffect, useRef } from "react";
 import styled from "styled-components";
 
 const Background = () => {
@@ -20,7 +20,7 @@ const Canvas = styled.canvas`
   z-index: -100;
 `;
 
-export default Background;
+export default memo(Background);
 
 class Animation {
   private readonly delta = 30;

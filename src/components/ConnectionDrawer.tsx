@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import { useAppSelector } from "../store/hooks";
 import { Entity } from "../store/workingSpace.slice";
@@ -84,7 +84,7 @@ const ConnectionDrawer = () => {
   );
 };
 
-export default ConnectionDrawer;
+export default memo(ConnectionDrawer);
 
 const Canvas = styled.canvas`
   position: fixed;
