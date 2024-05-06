@@ -20,6 +20,10 @@ import algorithms from "../algorithms";
 const SidePanel = () => {
   const dispatch = useAppDispatch();
 
+  const algorithmPlay = useAppSelector((state) =>
+    state.sidePanel.algorithmPlay
+  );
+
   const isOpen = useAppSelector((state) => state.sidePanel.isOpen);
   const handleToggle = useCallback(() => {
     dispatch(toggleSidePanel());
@@ -40,6 +44,7 @@ const SidePanel = () => {
   }, [dispatch]);
 
   const handleGenerate = useCallback(() => {
+    if (algorithmPlay) return;
     if (Number.isNaN(genSampleSize) || genSampleSize < 1) {
       return;
     }
@@ -54,24 +59,29 @@ const SidePanel = () => {
       };
     }
     dispatch(appendEntities(newEntities));
-  }, [genSampleSize, genType, dispatch]);
+  }, [genSampleSize, genType, algorithmPlay, dispatch]);
 
   const handleDeleteAll = useCallback(() => {
+    if (algorithmPlay) return;
     dispatch(removeAllEntities());
-  }, [dispatch]);
+  }, [algorithmPlay, dispatch]);
 
-  const pValue = useAppSelector(state => state.sidePanel.pValue)
+  const pValue = useAppSelector((state) => state.sidePanel.pValue);
   const handleChangePValue = useCallback((event: Change) => {
     const value = Number(event.target.value);
     dispatch(setPValue(value));
   }, [dispatch]);
 
-  const chosenAlgorithm = useAppSelector(state => state.sidePanel.chosenAlgorithm);
+  const chosenAlgorithm = useAppSelector((state) =>
+    state.sidePanel.chosenAlgorithm
+  );
   const chosenAlgorithmName = useMemo(() => {
     if (chosenAlgorithm === null) {
       return "Select algorithm";
     }
-    const target = algorithms.find(({ algorithmID }) => algorithmID === chosenAlgorithm)
+    const target = algorithms.find(({ algorithmID }) =>
+      algorithmID === chosenAlgorithm
+    );
     if (!target) {
       return "Unknown algorithm";
     }
@@ -82,10 +92,13 @@ const SidePanel = () => {
     dispatch(setAlgorithmChoose(true));
   }, [dispatch]);
 
-  const algorithmPlay = useAppSelector(state => state.sidePanel.algorithmPlay);
   const handleToggleAlgorithmPlay = useCallback(() => {
     dispatch(toggleAlgorithmPlay());
   }, [dispatch]);
+
+  const algorithmChoose = useAppSelector((state) =>
+    state.sidePanel.algorithmChoose
+  );
 
   return createPortal(
     (
@@ -94,7 +107,7 @@ const SidePanel = () => {
         {/* Generator */}
         <GeneratorContainer>
           <Title>Generator</Title>
-          <Label>Sample size: </Label>
+          <Label>Sample size:</Label>
           <Input
             value={genSampleSize}
             onChange={handleSetGenSampleSize}
@@ -115,10 +128,10 @@ const SidePanel = () => {
               </TypeButton>
             ))}
           </TypeButtons>
-          <GenerateButton onClick={handleGenerate}>
+          <GenerateButton onClick={handleGenerate} disabled={algorithmPlay}>
             Generate random
           </GenerateButton>
-          <GenerateButton onClick={handleDeleteAll}>
+          <GenerateButton onClick={handleDeleteAll} disabled={algorithmPlay}>
             Delete all entities
           </GenerateButton>
         </GeneratorContainer>
@@ -126,7 +139,7 @@ const SidePanel = () => {
         {/*Algorithms*/}
         <GeneratorContainer>
           <Title>Algorithm</Title>
-          <Label>P value: </Label>
+          <Label>P value:</Label>
           <Input
             type="number"
             placeholder="p parameter"
@@ -135,12 +148,15 @@ const SidePanel = () => {
             value={pValue}
             onChange={handleChangePValue}
           />
-          <GenerateButton onClick={handleAlgorithmChoose}>
+          <GenerateButton
+            disabled={algorithmPlay}
+            onClick={handleAlgorithmChoose}
+          >
             {chosenAlgorithmName}
           </GenerateButton>
-          <GenerateButton 
+          <GenerateButton
             onClick={handleToggleAlgorithmPlay}
-            disabled={!chosenAlgorithm}
+            disabled={!chosenAlgorithm || algorithmChoose}
           >
             {algorithmPlay ? "Stop Algorithm" : "Start Algorithm"}
           </GenerateButton>

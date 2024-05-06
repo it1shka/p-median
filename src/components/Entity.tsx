@@ -5,10 +5,14 @@ import {
   toggleMenuAt,
 } from "../store/workingSpace.slice";
 import { memo, useCallback } from "react";
-import { useAppDispatch } from "../store/hooks";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
 
 const EntityComponent = ({ id, kind, x, y }: Entity) => {
   const dispatch = useAppDispatch();
+
+  const algorithmPlay = useAppSelector((state) =>
+    state.sidePanel.algorithmPlay
+  );
 
   const handleClick = useCallback((event: React.MouseEvent) => {
     event.stopPropagation();
@@ -16,8 +20,9 @@ const EntityComponent = ({ id, kind, x, y }: Entity) => {
 
   const handleDoubleClick = useCallback((event: React.MouseEvent) => {
     event.stopPropagation();
+    if (algorithmPlay) return;
     dispatch(toggleMenuAt(id));
-  }, [id, dispatch]);
+  }, [id, algorithmPlay, dispatch]);
 
   const handleMouseMove = useCallback(
     ({ clientX, clientY }: MouseEvent) => {
@@ -32,8 +37,9 @@ const EntityComponent = ({ id, kind, x, y }: Entity) => {
   );
 
   const handleDragStart = useCallback(() => {
+    if (algorithmPlay) return;
     window.addEventListener("mousemove", handleMouseMove);
-  }, [handleMouseMove]);
+  }, [handleMouseMove, algorithmPlay]);
 
   const handleDragEnd = useCallback(() => {
     window.removeEventListener("mousemove", handleMouseMove);

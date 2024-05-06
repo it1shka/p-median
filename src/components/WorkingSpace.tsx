@@ -12,22 +12,26 @@ import Menu from "./Menu";
 import ConnectionTarget from "./ConnectionTarget";
 
 const WorkingSpace = () => {
+  const dispatch = useAppDispatch();
+
+  const algorithmPlay = useAppSelector((state) =>
+    state.sidePanel.algorithmPlay
+  );
+
   const popup = useAppSelector((state) => state.workingSpace.popup);
   const menuAt = useAppSelector((state) => state.workingSpace.menuAt);
   const connectionTarget = useAppSelector((state) =>
     state.workingSpace.connectionTarget
   );
 
-  const dispatch = useAppDispatch();
-
   const togglePopup = useCallback((event: React.MouseEvent) => {
     dispatch(setPopup(
-      popup ? null : {
+      (popup || algorithmPlay) ? null : {
         x: event.clientX,
         y: event.clientY,
       },
     ));
-  }, [popup, dispatch]);
+  }, [popup, algorithmPlay, dispatch]);
 
   const cancelConnection = useCallback(() => {
     dispatch(setConnectionTarget(null));
@@ -49,8 +53,8 @@ const WorkingSpace = () => {
     )
     : (
       <SpaceContainer onClick={togglePopup}>
-        {popup && <Popup />}
-        {menuAt && <Menu />}
+        {popup && !algorithmPlay && <Popup />}
+        {menuAt && !algorithmPlay && <Menu />}
         {entities.map((entity) => (
           <EntityComponent
             key={entity.id}

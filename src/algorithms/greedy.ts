@@ -38,7 +38,7 @@ const greedyAlgorithms: Array<AlgorithmData> = [
       }
 
       // second stage
-      // TODO: 
+      // TODO:
     },
   },
 ];
