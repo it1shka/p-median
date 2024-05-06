@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { memo, useCallback, useMemo } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import { useAppSelector } from "../store/hooks";
 import algorithms, {
   AlgorithmContext,
@@ -90,7 +90,7 @@ const Player = () => {
   const pValue = useAppSelector((state) => state.sidePanel.pValue);
   const entities = useAppSelector((state) => state.workingSpace.entities);
 
-  const getAlgorithmContext = useCallback(() => {
+  const getAlgorithmHistory = useCallback(() => {
     const producers = entities
       .filter(({ kind }) => kind === "producer")
       .map(({ id }) => id);
@@ -100,18 +100,28 @@ const Player = () => {
     const agent = new PlayerAgent(pValue, producers, consumers);
     agent.loadPositions(entities);
     executor(agent);
-    return agent;
+    return agent.getHistory();
   }, [pValue, entities, executor]);
 
-  const context = useAsync(getAlgorithmContext);
+  const history = useAsync(getAlgorithmHistory);
 
-  return (
-    <PlayerContainer>
-    </PlayerContainer>
-  );
+  return history ? (
+    <Controls history={history} />
+  ) : <></>;
 };
 
 export default memo(Player);
+
+type AlgorithmHistory = Readonly<Array<ContextAction>>
+const Controls = memo(({ history }: { history: AlgorithmHistory }) => {
+  const [pointer, setPointer] = useState(0)
+  // TODO: 
+  return (
+    <PlayerContainer>
+
+    </PlayerContainer>
+  );
+});
 
 const PlayerContainer = styled.div`
   position: fixed;
