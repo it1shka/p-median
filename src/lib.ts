@@ -24,11 +24,18 @@ export const useAsync = <T>(expensiveComputation: () => T) => {
       const output = expensiveComputation();
       setValue(output);
     })();
-  }, []);
+  }, [expensiveComputation]);
   return value;
 };
 
-// TODO: implement function memoization
-export const cached = <F extends Function>(fn: F) => {
-  // TODO: 
-}
+type GenericFunction = (...args: any[]) => any;
+export const withCache = <F extends GenericFunction>(fn: F) => {
+  const cache: { [key: string]: unknown } = {};
+  return ((...args) => {
+    const key = JSON.stringify(args);
+    if (key in cache) return cache[key];
+    const value = fn(...args);
+    cache[key] = value;
+    return value;
+  }) as F;
+};
